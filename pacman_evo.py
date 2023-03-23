@@ -36,16 +36,16 @@ class Monster:
         if dist > 0:
             dx = (other_monster.x - self.x) // dist
             dy = (other_monster.y - self.y) // dist
-            self.x += dx * abs(self.speed_x)
-            self.y += dy * abs(self.speed_y)
+            self.x += dx * self.speed_x
+            self.y += dy * self.speed_y
     
     def move_away(self, other_monster):
         dist = distance(self, other_monster)
         if dist > 0:
             dx = (self.x - other_monster.x) // dist
             dy = (self.y - other_monster.y) // dist
-            self.x += dx * abs(self.speed_x) 
-            self.y += dy * abs(self.speed_y)
+            self.x += dx * self.speed_x
+            self.y += dy * self.speed_y
             
     def draw(self, screen):
         pygame.draw.circle(screen, self.color, (self.x, self.y), self.size)
@@ -91,9 +91,9 @@ class Pacman(Monster):
 
 class Ghost(Monster):
     def __init__(self, x, y):
-        super().__init__(x, y, size = 10, speed_x = 0.7, speed_y = 0.7)
+        super().__init__(x, y, size = 10, speed_x = 3, speed_y = 3)
         self.color = (255, 0, 0)
-        self.lifetime = 4000
+        self.lifetime = 3000
         
     def __repr__(self):
         return(f"size:{self.size} lifetime:{self.lifetime}")
@@ -126,8 +126,8 @@ pacmans = [
                     random.randint(0, SCREEN_WIDTH)
                   , random.randint(0, SCREEN_HEIGHT)
                   , random.randint(3, 7)
-                  , random.randint(2, 4)*0.1
-                  , random.randint(2, 4)*0.1
+                  , random.randint(1, 2)
+                  , random.randint(1, 2)
                   )
            for _ in range(NUM_PACMANS)
           ]
@@ -161,7 +161,7 @@ while running:
     if len(pacmans) == 0:
         print("all pacmans are dead")
         break
-    """   
+   
     text = font.render(
                        f"pacmans: {len(pacmans)}"
                        f"ghosts:{len(ghosts)}" 
@@ -174,7 +174,7 @@ while running:
                        , (255, 255, 255)
                       )
     screen.blit(text, (0, 0))
-    """
+
     
     # Draw Pacmans and Ghosts
     for pacman in pacmans:
@@ -189,17 +189,7 @@ while running:
         ghosts_to_append = []
         pacmans_to_delete = []
         
-        #ghost movement
-        if ghost.find_closest_monster(200, pacmans):
-            pacman = ghost.find_closest_monster(200, pacmans)
-            ghost.move_towards(pacman)
-        else:
-            if ghost.x <= 0 + ghost.size:
-                ghost.speed_x *= -1
-            if ghost.y <= 0 + ghost.size:
-                ghost.speed_y *= -1               
-            ghost.move()
-            
+           
         #ghost eating
         for pacman in pacmans:
             if math.hypot(pacman.x - ghost.x, pacman.y - ghost.y) \
@@ -208,7 +198,7 @@ while running:
                     pacmans.remove(pacman)
                     pacmans_to_delete.append(pacman)
                     ghost.size += pacman.size
-                    ghost.lifetime = 4000
+                    #ghost.lifetime = 4000
                     if ghost.size >= 20:
                         ghosts_to_remove.append(ghost)
                         print("ghost popped")
@@ -217,15 +207,26 @@ while running:
                     print("pacman is eaten")
                     break
                 except ValueError:
-                    ghost.lifetime -= 1
-            else:
-                ghost.lifetime -= 1
+                    pass
 
+                
+        #ghost movement
+        if ghost.find_closest_monster(600, pacmans):
+            pacman = ghost.find_closest_monster(600, pacmans)
+            ghost.move_towards(pacman)
+        else:
+            if ghost.x <= 0 + ghost.size:
+                ghost.speed_x *= -1
+            if ghost.y <= 0 + ghost.size:
+                ghost.speed_y *= -1               
+            ghost.move()
+
+        ghost.lifetime -= 1
         if ghost.lifetime <= 0:
             if len(ghosts) > 1:
                 ghosts_to_remove.append(ghost)
             else:
-                ghost.lifetime = 4000
+                ghost.lifetime = 3000
         
         for pacman in pacmans_to_delete:
             try:

@@ -16,44 +16,69 @@ class Monster:
     
     id = 0
         
-    def __init__(self, x, y, size, speed):
+    def __init__(self, x, y, size, speed_x, speed_y):
         self.x = x
         self.y = y
         self.size = size
-        self.speed = speed
+        self.speed_x = speed_x
+        self.speed_y = speed_y
+        self.direction = 1
          
     def __repr__(self):
-        return(f"x:{self.x} y:{self.y} size:{self.size} speed:{self.speed}")        
+        return(f"x:{self.x} y:{self.y} size:{self.size} speed:{self.speed_x}, {self.speed_y}")        
         
     def move(self):
-        dx = random.randint(-self.speed, self.speed)
-        dy = random.randint(-self.speed, self.speed)
+        
+        """
+        dx = random.randint(-self.speed_x, self.speed_x)
+        dy = random.randint(-self.speed_y, self.speed_y)
         self.x = (self.x + dx) % SCREEN_WIDTH
         self.y = (self.y + dy) % SCREEN_HEIGHT
-        
+        """
+        # Changing the direction and x,y coordinate
+        # of the object if the coordinate of left
+        # side is less than equal to 20 or right side coordinate
+        # is greater than equal to 580
+        if self.x <= self.size + 20 or self.x >= self.size + 780:
+            self.direction *= -1
+            self.speed_x = self.speed_x * self.direction
+            self.speed_y = self.speed_y * self.direction
+    
+        # Changing the direction and x,y coordinate
+        # of the object if the coordinate of top
+        # side is less than equal to 20 or bottom side coordinate
+        # is greater than equal to 580
+        if self.y <= self.size + 20 or self.y >= self.size + 580:
+            self.direction *= -1
+            self.speed_x = self.speed_x * self.direction
+            self.speed_y = self.speed_y * self.direction
+    
+        self.x = self.x + self.speed_x
+        self.y = self.y + self.speed_y
+
     def move_towards(self, other_monster):
         dist = distance(self, other_monster)
         if dist > 0:
             dx = (other_monster.x - self.x) // dist
             dy = (other_monster.y - self.y) // dist
-            self.x += dx * self.speed
-            self.y += dy * self.speed
+            self.x += dx * self.speed_x
+            self.y += dy * self.speed_y
     
     def move_away(self, other_monster):
         dist = distance(self, other_monster)
         if dist > 0:
             dx = (self.x - other_monster.x) // dist
             dy = (self.y - other_monster.y) // dist
-            self.x += dx * self.speed
-            self.y += dy * self.speed
+            self.x += dx * self.speed_x
+            self.y += dy * self.speed_y
             
     def draw(self, screen):
         pygame.draw.circle(screen, self.color, (self.x, self.y), self.size)
 
 
 class Pacman(Monster):
-    def __init__(self, x, y, size, speed, color = (255, 255, 0), dad = 0, mom = 0):
-        super().__init__(x, y, size, speed)
+    def __init__(self, x, y, size, speed_x, speed_y, color = (255, 255, 0), dad = 0, mom = 0):
+        super().__init__(x, y, size, speed_x, speed_y)
         self.dad = dad
         self.mom = mom
         self.color = (255, 255, 0)
@@ -62,23 +87,23 @@ class Pacman(Monster):
         self.age = 0
 
     def __repr__(self):
-        return(f"x:{self.x} y:{self.y} size:{self.size} speed:{self.speed} dad:{self.dad} mom:{self.mom}")
+        return(f"x:{self.x} y:{self.y} size:{self.size} speed:{self.speed_x}, {self.speed_y} dad:{self.dad} mom:{self.mom}")
 
     def reproduce(self, other_pacman):
         size = random.choice([self.size, other_pacman.size, (self.size+other_pacman.size)//2]) + int(random.choice([self.size, other_pacman.size]) * random.uniform(-MUTATION_RATE_SIZE, MUTATION_RATE_SIZE))
-        speed = random.choice([self.speed, other_pacman.speed, (self.speed+other_pacman.speed)//2]) + int(random.choice([self.speed, other_pacman.speed]) * random.uniform(-MUTATION_RATE_SPEED, MUTATION_RATE_SPEED))
+        speed_x = random.choice([self.speed_x, other_pacman.speed_x, (self.speed_x+other_pacman.speed_x)//2]) + int(random.choice([self.speed_x, other_pacman.speed_x]) * random.uniform(-MUTATION_RATE_SPEED, MUTATION_RATE_SPEED))
+        speed_y = random.choice([self.speed_y, other_pacman.speed_y, (self.speed_y+other_pacman.speed_y)//2]) + int(random.choice([self.speed_y, other_pacman.speed_y]) * random.uniform(-MUTATION_RATE_SPEED, MUTATION_RATE_SPEED))
         #print(f"new pacman is born! dad:{self.id} mom:{other_pacman.id}")      
-        return Pacman(self.x, self.y, size, speed, self.id, other_pacman.id)
+        return Pacman(self.x, self.y, size, speed_x, speed_y, self.id, other_pacman.id)
 
 class Ghost(Monster):
     def __init__(self, x, y):
-        super().__init__(x, y, size = 10, speed = 6)
+        super().__init__(x, y, size = 10, speed_x = 6, speed_y = 6)
         self.color = (255, 0, 0)
         self.lifetime = 4000
         
     def __repr__(self):
         return(f"size:{self.size} lifetime:{self.lifetime}")
-
 
 
 # Define the function to calculate the distance between two objects
@@ -100,15 +125,21 @@ def range_to_reproduce(pacman1, pacman2):
 
 
 # Create Pacmans and Ghosts
-pacmans = [Pacman(random.randint(0, SCREEN_WIDTH), random.randint(0, SCREEN_HEIGHT),
-                  random.randint(3, 7), random.randint(4, 6)) for _ in range(NUM_PACMANS)]
-print(pacmans)
-ghosts = [Ghost(random.randint(0, SCREEN_WIDTH), random.randint(0, SCREEN_HEIGHT)) for _ in range(NUM_GHOSTS)]
-print(ghosts)        
+pacmans = [Pacman(random.randint(0, SCREEN_WIDTH)
+           , random.randint(0, SCREEN_HEIGHT)
+           , random.randint(3, 7)
+           , random.randint(4, 6)
+           , random.randint(4, 6)) for _ in range(NUM_PACMANS)]
 
+ghosts = [Ghost(random.randint(0, SCREEN_WIDTH)
+          , random.randint(0, SCREEN_HEIGHT)) for _ in range(NUM_GHOSTS)]
+      
+
+#pygame settings
 pygame.init()
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 clock = pygame.time.Clock()
+font = pygame.font.SysFont("comicsansms", 14)
 running = True
 
 while running:
@@ -119,12 +150,21 @@ while running:
 
     # fill the screen with a color to wipe away anything from last frame
     screen.fill(BACKGROUND_COLOR)
-
+    text = font.render(f"pacmans: {len(pacmans)}"
+                       f"ghosts:{len(ghosts)}" 
+                       f"max_speed: {(max(pacmans, key=lambda y: y.speed_x)).speed_x}"
+                       f"max_size: {(max(pacmans, key=lambda y: y.size)).size}",
+                        True, (255, 255, 255)
+                        )
+    screen.blit(text, (0, 0))
+    
     if len(pacmans) == 0:
         print("all pacmans are dead")
         break
     elif len(ghosts) == 0:
-        ghosts.append(Ghost(random.randint(0, SCREEN_WIDTH), random.randint(0, SCREEN_HEIGHT)))
+        ghosts.append(Ghost(random.randint(0, SCREEN_WIDTH)
+                      , random.randint(0, SCREEN_HEIGHT))
+                      )
     
     # Draw Pacmans and Ghosts
     for pacman in pacmans:
@@ -141,7 +181,6 @@ while running:
         ghosts_to_remove = []
         ghosts_to_append = []
         for ghost in ghosts:
-            
             if distance(pacman, ghost) <= 30:
                 pacman.move_away(ghost)
                 ghost.move_towards(pacman)
@@ -149,11 +188,13 @@ while running:
                 ghost.move()
                 pacman.move()
            
-            if math.hypot(pacman.x - ghost.x, pacman.y - ghost.y) <= (pacman.size + ghost.size)//2:
+            if math.hypot(pacman.x - ghost.x, pacman.y - ghost.y) \
+               <= (pacman.size + ghost.size)//2:
                 try:
                     pacmans.remove(pacman)
                     pacmans_to_delete.append(pacman)
                     ghost.size += pacman.size
+                    ghost.lifetime = 4000
                     if ghost.size >= 20:
                         ghosts_to_remove.append(ghost)
                         print("ghost popped")
@@ -167,7 +208,10 @@ while running:
             else:
                 ghost.lifetime -= 1
                 if ghost.lifetime <= 0:
-                    ghosts_to_remove.append(ghost)
+                    if len(ghosts) > 1:
+                        ghosts_to_remove.append(ghost)
+                    else:
+                        ghost.lifetime = 4000
                            
         for ghost in ghosts_to_remove:
             ghosts.remove(ghost)

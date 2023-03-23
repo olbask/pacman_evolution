@@ -67,14 +67,14 @@ class Pacman(Monster):
     def reproduce(self, other_pacman):
         size = random.choice([self.size, other_pacman.size, (self.size+other_pacman.size)//2]) + int(random.choice([self.size, other_pacman.size]) * random.uniform(-MUTATION_RATE_SIZE, MUTATION_RATE_SIZE))
         speed = random.choice([self.speed, other_pacman.speed, (self.speed+other_pacman.speed)//2]) + int(random.choice([self.speed, other_pacman.speed]) * random.uniform(-MUTATION_RATE_SPEED, MUTATION_RATE_SPEED))
-        print(f"new pacman is born! dad:{self.id} mom:{other_pacman.id}")      
+        #print(f"new pacman is born! dad:{self.id} mom:{other_pacman.id}")      
         return Pacman(self.x, self.y, size, speed, self.id, other_pacman.id)
 
 class Ghost(Monster):
     def __init__(self, x, y):
         super().__init__(x, y, size = 10, speed = 6)
         self.color = (255, 0, 0)
-        self.lifetime = 2000
+        self.lifetime = 4000
         
     def __repr__(self):
         return(f"size:{self.size} lifetime:{self.lifetime}")
@@ -118,8 +118,7 @@ while running:
             running = False
 
     # fill the screen with a color to wipe away anything from last frame
-    screen.fill("black")
-
+    screen.fill(BACKGROUND_COLOR)
 
     if len(pacmans) == 0:
         print("all pacmans are dead")
@@ -134,6 +133,8 @@ while running:
     for ghost in ghosts:
         ghost.draw(screen)
         
+    pacmans_to_delete = []    
+        
     # Simulate life of Pacmans and Ghosts
     for pacman in pacmans:
         pacman.age += 1
@@ -146,10 +147,12 @@ while running:
                 ghost.move_towards(pacman)
             else:
                 ghost.move()
+                pacman.move()
            
             if math.hypot(pacman.x - ghost.x, pacman.y - ghost.y) <= (pacman.size + ghost.size)//2:
                 try:
                     pacmans.remove(pacman)
+                    pacmans_to_delete.append(pacman)
                     ghost.size += pacman.size
                     if ghost.size >= 20:
                         ghosts_to_remove.append(ghost)
@@ -171,9 +174,10 @@ while running:
             del ghost
             print("ghost dead")
             
-        
+        #add new ghosts that were born after their ancestor was popped   
         ghosts.extend(ghosts_to_append)
-                    
+        
+        #pacman reproduction cycle            
         for other_pacman in pacmans:
             
             if distance(pacman, other_pacman) <= 40 and can_reproduce(pacman, other_pacman):
@@ -187,15 +191,20 @@ while running:
                     new_pacman = pacman.reproduce(other_pacman)
                     pacmans.append(new_pacman)
                 pacmans.remove(other_pacman)
+                pacmans_to_delete.append(other_pacman)
                 try:
                     pacmans.remove(pacman)
+                    pacmans_to_delete.append(pacman)
                 except ValueError:
                     pass  
                 break
+            
+    for pacman in pacmans_to_delete:
+        del pacman
     
     pygame.display.flip()
 
-    clock.tick(25)  # limits FPS to 60
+    clock.tick(60)  # limits FPS to 60
 
 pygame.quit()
 

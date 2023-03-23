@@ -7,8 +7,8 @@ import random
 SCREEN_WIDTH = 600
 SCREEN_HEIGHT = 400
 BACKGROUND_COLOR = (0, 0, 0)
-NUM_PACMANS = 50
-NUM_GHOSTS = 2
+NUM_PACMANS = 100
+NUM_GHOSTS = 4
 MUTATION_RATE_SIZE = 0.3
 MUTATION_RATE_SPEED = 0.3
 
@@ -78,7 +78,15 @@ class Pacman(Monster):
         speed_x = random.choice([self.speed_x, other_pacman.speed_x, (self.speed_x+other_pacman.speed_x)//2]) + int(random.choice([self.speed_x, other_pacman.speed_x]) * random.uniform(-MUTATION_RATE_SPEED, MUTATION_RATE_SPEED))
         speed_y = random.choice([self.speed_y, other_pacman.speed_y, (self.speed_y+other_pacman.speed_y)//2]) + int(random.choice([self.speed_y, other_pacman.speed_y]) * random.uniform(-MUTATION_RATE_SPEED, MUTATION_RATE_SPEED))
         #print(f"new pacman is born! dad:{self.id} mom:{other_pacman.id}")      
-        return Pacman(self.x, self.y, size, speed_x, speed_y, self.id, other_pacman.id)
+        return Pacman(
+                        self.x + random.randint(-20, 20)
+                        , self.y + random.randint(-20, 20)
+                        , size
+                        , speed_x
+                        , speed_y
+                        , self.id
+                        , other_pacman.id
+                     )
      
 
 class Ghost(Monster):
@@ -153,7 +161,7 @@ while running:
     if len(pacmans) == 0:
         print("all pacmans are dead")
         break
-    
+    """   
     text = font.render(
                        f"pacmans: {len(pacmans)}"
                        f"ghosts:{len(ghosts)}" 
@@ -166,7 +174,7 @@ while running:
                        , (255, 255, 255)
                       )
     screen.blit(text, (0, 0))
-
+    """
     
     # Draw Pacmans and Ghosts
     for pacman in pacmans:
@@ -231,6 +239,7 @@ while running:
                 
     #clear dead monsters                   
     for ghost in ghosts_to_remove:
+        print(ghost)
         ghosts.remove(ghost)
         del ghost
         print("ghost is dead")
@@ -255,7 +264,6 @@ while running:
             
             if distance(pacman, other_pacman) <= 100 and can_reproduce(pacman, other_pacman):
                 pacman.move_towards(other_pacman)
-                other_pacman.move_towards(pacman)
             
             if other_pacman != pacman \
                and can_reproduce(pacman, other_pacman) \

@@ -54,10 +54,6 @@ class Monster:
 class Pacman(Monster):
     def __init__(self, x, y, size, speed, color = (255, 255, 0), dad = 0, mom = 0):
         super().__init__(x, y, size, speed)
-        self.x = x
-        self.y = y
-        self.size = size
-        self.speed = speed
         self.dad = dad
         self.mom = mom
         self.color = (255, 255, 0)
@@ -76,10 +72,7 @@ class Pacman(Monster):
 
 class Ghost(Monster):
     def __init__(self, x, y):
-        super().__init__(x, y, size = 10, speed = 8)
-        self.x = x
-        self.y = y
-        self.size = 10
+        super().__init__(x, y, size = 10, speed = 6)
         self.color = (255, 0, 0)
         self.lifetime = 2000
         
@@ -133,17 +126,15 @@ while running:
         break
     elif len(ghosts) == 0:
         ghosts.append(Ghost(random.randint(0, SCREEN_WIDTH), random.randint(0, SCREEN_HEIGHT)))
-    # Move Pacmans and Ghosts
+    
+    # Draw Pacmans and Ghosts
     for pacman in pacmans:
-        #pacman.move()
-        pacman_pos = pygame.Vector2(pacman.x, pacman.y)
-        pygame.draw.circle(screen, "yellow", pacman_pos, pacman.size)
+        pacman.draw(screen)
 
     for ghost in ghosts:
-        #ghost.move()
-        ghost_pos = pygame.Vector2(ghost.x, ghost.y)
-        pygame.draw.circle(screen, "red", ghost_pos, ghost.size)
-
+        ghost.draw(screen)
+        
+    # Simulate life of Pacmans and Ghosts
     for pacman in pacmans:
         pacman.age += 1
         ghosts_to_remove = []
@@ -154,7 +145,6 @@ while running:
                 pacman.move_away(ghost)
                 ghost.move_towards(pacman)
             else:
-                pacman.move()
                 ghost.move()
            
             if math.hypot(pacman.x - ghost.x, pacman.y - ghost.y) <= (pacman.size + ghost.size)//2:

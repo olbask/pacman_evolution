@@ -8,13 +8,13 @@ SCREEN_WIDTH = 600
 SCREEN_HEIGHT = 400
 BACKGROUND_COLOR = (0, 0, 0)
 NUM_PACMANS = 3
-NUM_GHOSTS = 0
+NUM_GHOSTS = 1
 MUTATION_RATE_SIZE = 0.3
 MUTATION_RATE_SPEED = 0.3
 GHOST_LIFETIME = 200
 
-class Monster:
 
+class Monster:
     id = 0
 
     def __init__(self, x, y, size, speed_x, speed_y):
@@ -152,7 +152,7 @@ ghosts = [
 pygame.init()
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 clock = pygame.time.Clock()
-font = pygame.font.SysFont("comicsansms", 14)
+font = pygame.font.SysFont("courier", 11, bold=True)
 running = True
 
 while running:
@@ -167,7 +167,6 @@ while running:
     if len(pacmans) == 0:
         print("all pacmans are dead")
         break
-
 
     # Draw Pacmans and Ghosts
     for pacman in pacmans:
@@ -298,13 +297,17 @@ while running:
         f"max_speed_x_pa: {(max(pacmans, key=lambda y: y.speed_x)).speed_x}"
         f"max_speed_y_pa: {(max(pacmans, key=lambda y: y.speed_y)).speed_y}"
         f"max_size_pa: {(max(pacmans, key=lambda y: y.size)).size}"
-        #f"max_speed_x_gh: {(max(ghosts, key=lambda y: y.speed_x)).speed_x}"
-        #f"max_speed_y_gh: {(max(ghosts, key=lambda y: y.speed_y)).speed_y}"
+        , True
+        , (255, 255, 255)
+    )
+    text1 = font.render(
+        f"{pacmans[0].find_closest_monster(100, ghosts)}, {pacmans[1].find_closest_monster(100, ghosts)}, {pacmans[2].find_closest_monster(100, ghosts)}"
+        f"{ghosts[0].find_closest_monster(100, pacmans)}"
         , True
         , (255, 255, 255)
     )
     screen.blit(text, (0, 0))
-
+    screen.blit(text1, (0, 11))
     pygame.display.flip()
 
     clock.tick(60)  # limits FPS to 60

@@ -7,11 +7,11 @@ import pygame
 SCREEN_WIDTH = 600
 SCREEN_HEIGHT = 400
 BACKGROUND_COLOR = (0, 0, 0)
-NUM_PACMANS = 100
-NUM_GHOSTS = 4
+NUM_PACMANS = 3
+NUM_GHOSTS = 0
 MUTATION_RATE_SIZE = 0.3
 MUTATION_RATE_SPEED = 0.3
-GHOST_LIFETIME = 300
+GHOST_LIFETIME = 200
 
 class Monster:
 
@@ -254,11 +254,8 @@ while running:
             pacmans_to_delete.append(pacman)
             break
 
-        # Pacman movement
+        # Pacman reproduction
         for other_pacman in pacmans:
-
-            if distance(pacman, other_pacman) <= 100 and can_reproduce(pacman, other_pacman):
-                pacman.move_towards(other_pacman)
 
             if other_pacman != pacman \
                     and can_reproduce(pacman, other_pacman) \

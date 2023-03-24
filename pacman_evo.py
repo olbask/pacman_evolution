@@ -11,7 +11,7 @@ NUM_PACMANS = 100
 NUM_GHOSTS = 4
 MUTATION_RATE_SIZE = 0.3
 MUTATION_RATE_SPEED = 0.3
-GHOST_LIFETIME = 1000
+GHOST_LIFETIME = 300
 
 class Monster:
 
@@ -168,18 +168,6 @@ while running:
         print("all pacmans are dead")
         break
 
-    text = font.render(
-        f"pacmans: {len(pacmans)}"
-        f"ghosts:{len(ghosts)}"
-        f"max_speed_x_pa: {(max(pacmans, key=lambda y: y.speed_x)).speed_x}"
-        f"max_speed_y_pa: {(max(pacmans, key=lambda y: y.speed_y)).speed_y}"
-        f"max_size_pa: {(max(pacmans, key=lambda y: y.size)).size}"
-        f"max_speed_x_gh: {(max(ghosts, key=lambda y: y.speed_x)).speed_x}"
-        f"max_speed_y_gh: {(max(ghosts, key=lambda y: y.speed_y)).speed_y}"
-        , True
-        , (255, 255, 255)
-    )
-    screen.blit(text, (0, 0))
 
     # Draw Pacmans and Ghosts
     for pacman in pacmans:
@@ -306,6 +294,19 @@ while running:
 
     for pacman in pacmans_to_delete:
         del pacman
+
+    text = font.render(
+        f"pacmans: {len(pacmans)}"
+        f"ghosts:{len(ghosts)}"
+        f"max_speed_x_pa: {(max(pacmans, key=lambda y: y.speed_x)).speed_x}"
+        f"max_speed_y_pa: {(max(pacmans, key=lambda y: y.speed_y)).speed_y}"
+        f"max_size_pa: {(max(pacmans, key=lambda y: y.size)).size}"
+        #f"max_speed_x_gh: {(max(ghosts, key=lambda y: y.speed_x)).speed_x}"
+        #f"max_speed_y_gh: {(max(ghosts, key=lambda y: y.speed_y)).speed_y}"
+        , True
+        , (255, 255, 255)
+    )
+    screen.blit(text, (0, 0))
 
     pygame.display.flip()
 
